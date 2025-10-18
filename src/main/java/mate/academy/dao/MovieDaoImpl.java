@@ -1,28 +1,38 @@
 package mate.academy.dao;
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+import mate.academy.exceptions.DataProcessingException;
+import mate.academy.lib.Dao;
 import mate.academy.model.Movie;
 import mate.academy.util.HibernateUtil;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.HibernateException;
+import java.util.Optional;
 
+@Dao
 public class MovieDaoImpl implements MovieDao {
     @Override
-    public Movie save(Movie movie) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.save(movie);
-        transaction.commit();
-        session.close();
-
-        return movie;
+    public Movie add(Movie movie) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.save(movie);
+            transaction.commit();
+            return movie;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new DataProcessingException("Can't insert movie: " + movie, e);
+        }
     }
 
     @Override
-    public Movie get(Long id) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
-        Session session = sessionFactory.openSession();
-        return session.get(Movie.class, id);
+    public Optional<Movie> get(Long id) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return Optional.ofNullable(session.get(Movie.class, id));
+        } catch (HibernateException e) {
+            throw new DataProcessingException("Can't get movie by id " + id, e);
+        }
     }
 }
