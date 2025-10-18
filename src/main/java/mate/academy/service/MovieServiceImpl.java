@@ -23,3 +23,4 @@ public class MovieServiceImpl implements MovieService {
                 new RuntimeException("Movie with id " + id + " not found"));
     }
 }
+

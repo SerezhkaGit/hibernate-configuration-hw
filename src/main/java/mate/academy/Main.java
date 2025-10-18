@@ -5,19 +5,24 @@ import mate.academy.model.Movie;
 import mate.academy.service.MovieService;
 
 public class Main {
+    private static final Injector injector = Injector.getInstance("mate.academy");
+
     public static void main(String[] args) {
-        Injector injector = Injector.getInstance("mate.academy");
 
         MovieService movieService = (MovieService) injector.getInstance(MovieService.class);
 
-        Movie movie = new Movie();
-        movie.setTitle("It");
-        movie.setDescription("Horror");
+        Movie fastAndFurious = new Movie();
+        fastAndFurious.setTitle("Fast and Furious");
+        fastAndFurious.setDescription("Movie about fast cars");
 
-        movieService.add(movie);
-        System.out.println("Movie added successfully: " + movie);
+        System.out.println("Adding new movie...");
+        Movie addedMovie = movieService.add(fastAndFurious);
+        System.out.println("Added: " + addedMovie);
 
-        Movie movieFromDb = movieService.get(movie.getId());
-        System.out.println("Movie retrieved from DB: " + movieFromDb);
+        Long movieId = addedMovie.getId();
+        System.out.println("\nGetting movie by ID " + movieId + "...");
+        Movie retrievedMovie = movieService.get(movieId);
+        System.out.println("Retrieved: " + retrievedMovie);
+
     }
 }
